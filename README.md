@@ -1,2 +1,2 @@
 # online-book
-react+jest
+react+jest+redux
