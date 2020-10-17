@@ -3,6 +3,8 @@ import logo from './logo.svg';
 import 'bootstrap/dist/css/bootstrap.min.css'
 import './App.css';
 import PriceList from './components/PriceList';
+import ViewTab from './components/ViewTab';
+import {LIST_VIEW, CHART_VIEW} from './utility';
 const items = [
     {
         id: 1,
@@ -51,6 +53,10 @@ function App() {
                 items={items}
                 onModifyItem={item => {alert(item.id)}}
                 onDeleteItem={item => {alert(item.id)}}
+            />
+            <ViewTab
+                activeTab={CHART_VIEW}
+                onTabChange={view => {console.log(view)}}
             />
         </div>
     );
