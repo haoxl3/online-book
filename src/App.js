@@ -59,7 +59,9 @@ function App() {
                 activeTab={CHART_VIEW}
                 onTabChange={view => {console.log(view)}}
             />
-            <MonthPicker year={2018} month={5}/>
+            <MonthPicker year={2018} month={5}
+                onChange={(year, month) => {console.log(year, month)}}
+            />
         </div>
     );
 }
