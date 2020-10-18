@@ -7,7 +7,7 @@ import MonthPicker from '../components/MonthPicker';
 import CreateBtn from '../components/CreateBtn';
 import TotalPrice from '../components/TotalPrice';
 
-const categories = {
+export const categories = {
     '1': {
         id: '1',
         name: '旅行',
@@ -21,7 +21,7 @@ const categories = {
         iconName: 'ios-plane'
     }
 }
-const items = [
+export const items = [
     {
         id: 1,
         title: '去旅游',
