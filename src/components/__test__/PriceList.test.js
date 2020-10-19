@@ -3,7 +3,6 @@ import {shallow} from 'enzyme'
 import PriceList from '../PriceList'
 import Ionicon from 'react-ionicons'
 import {items, categories} from '../../containers/Home'
-import { jsxEmptyExpression } from '@babel/types'
 
 const itemsWithCategory = items.map(item => {
     item.category = categories[item.cid];

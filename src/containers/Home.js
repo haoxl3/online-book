@@ -35,6 +35,13 @@ export const items = [
         price: 2000,
         date: '2020-03-26',
         cid: '2'
+    },
+    {
+        id: 3,
+        title: '去旅游',
+        price: 2000,
+        date: '2020-10-19',
+        cid: '1'
     }
 ];
 const newItem = {
@@ -50,7 +57,7 @@ class Home extends React.Component {
         super(props)
         this.state = {
             items,
-            currentDate: parseToYearAndMonth(),
+            currentDate: parseToYearAndMonth('2020-10-10'),
             tabView: LIST_VIEW
         }
     }
@@ -138,7 +145,7 @@ class Home extends React.Component {
                         />
                     }
                     {tabView === CHART_VIEW &&
-                        <h1>图表</h1>
+                        <h1 className="chart-title">图表</h1>
                     }
                 </div>
             </React.Fragment>
