@@ -1,7 +1,7 @@
 import React from 'react'
 import {mount} from 'enzyme'
 import MonthPicker from '../MonthPicker'
-import { jsxEmptyExpression, exportAllDeclaration } from '@babel/types'
+import ReactDOM from 'react-dom'
 import { items } from '../../containers/Home'
 
 let props = {
@@ -44,5 +44,24 @@ describe('test MonthPicker component', () => {
         wrapper.find('.months-range .dropdown-item').first().simulate('click')
         expect(wrapper.state('isOpen')).toEqual(false)
         expect(props.onChange).toHaveBeenCalledWith(2016, 1)
+    })
+    it('after the dropdown is shown, click the document should close the dropdown', () => {
+        // 模拟点击document时下拉菜单关闭，点击日期组件本身时不关闭
+        let eventMap = {}
+        document.addEventListener = jest.fn((event, cb) => {
+            eventMap[event] = cb
+        })
+        const wrapper = mount(<MonthPicker {...props}/>)
+        wrapper.find('.dropdown-toggle').simulate('click')
+        // expect(wrapper.state('isOpen')).toEqual(true)
+        expect(wrapper.find('.dropdown-menu').length).toEqual(1)
+        eventMap.click({
+            traget: ReactDOM.findDOMNode(wrapper.instance())
+        })
+        // expect(wrapper.state('isOpen')).toEqual(true)
+        eventMap.click({
+            target: document
+        })
+        expect(wrapper.state('isOpen')).toEqual(false)
     })
 })
