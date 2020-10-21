@@ -7,7 +7,8 @@ import ViewTab from '../components/ViewTab';
 import MonthPicker from '../components/MonthPicker';
 import CreateBtn from '../components/CreateBtn';
 import TotalPrice from '../components/TotalPrice';
-import { Tabs, Tab } from '../components/Tabs';
+import {Tabs, Tab} from '../components/Tabs';
+import withContext from '../WithContext';
 
 export const categories = {
     '1': {
@@ -98,6 +99,8 @@ class Home extends React.Component {
         });
     }
     render() {
+        const {data} = this.props;
+        console.log(data);
         const {items, currentDate, tabView} = this.state;
         // 将categories与items.cid关联,给item添加category属性并赋值
         const itemsWithCategory = items.map(item => {
@@ -175,4 +178,4 @@ class Home extends React.Component {
         );
     }
 }
-export default Home;
+export default withContext(Home);

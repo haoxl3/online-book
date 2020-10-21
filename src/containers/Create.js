@@ -6,6 +6,7 @@ import {testCategories} from '../testData';
 import {TYPE_INCOME, TYPE_OUTCOME} from '../utility';
 import PriceList from '../components/PriceList';
 import {AppContext} from '../App';
+import withContext from '../WithContext';
 
 // match获取路由上的参数
 // const Create = ({match}) => {
@@ -16,28 +17,23 @@ class Create extends React.Component {
         super(props);
     }
     render() {
+        const {data} = this.props;
+        console.log('create++++', data);
         const filterCategories = testCategories.filter(category => category.type === TYPE_OUTCOME);
-        return(
-            <AppContext.Consumer>
-                {({state}) => {
-                    console.log(state)
-                    return (
-                        <div className="create-page py-3 px-3 rounded mt-3" style={{background: '#fff'}}>
-                            <Tabs activeIndex={0} onTabChange={() => {}}>
-                                <Tab>支出</Tab>
-                                <Tab>收入</Tab>
-                            </Tabs>
-                            <CategorySelect categories={filterCategories} onSelectCategory={()=>{}}/>
-                            <PriceForm
-                                onFormSubmit={() => {}}
-                                onCancelSubmit={() => {}}
-                            />
-                        </div>
-                    )
-                }}
-            </AppContext.Consumer>
-        )
+        return (
+            <div className="create-page py-3 px-3 rounded mt-3" style={{background: '#fff'}}>
+                <Tabs activeIndex={0} onTabChange={() => {}}>
+                    <Tab>支出</Tab>
+                    <Tab>收入</Tab>
+                </Tabs>
+                <CategorySelect categories={filterCategories} onSelectCategory={()=>{}}/>
+                <PriceForm
+                    onFormSubmit={() => {}}
+                    onCancelSubmit={() => {}}
+                />
+            </div>
+        );
     }
 }
 
-export default Create
+export default withContext(Create);
