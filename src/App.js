@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import './App.css';
 import Home from './containers/Home';
 import Create from './containers/Create';
-import {flatternArr} from './utility';
+import {flatternArr, ID, parseToYearAndMonth} from './utility';
 import {testItems, testCategories} from './testData';
 
 export const AppContext = React.createContext();
@@ -19,10 +19,19 @@ class App extends React.Component {
         this.actions = {
             deleteItem: item => {
                 // this.state.items = {1: {}, 2:{}}
-                console.log('***item', item)
                 delete this.state.items[item.id];
                 this.setState({
                     items: this.state.items
+                });
+            },
+            createItem: (data, categoryId) => {
+                const newId = ID();
+                const parsedDate = parseToYearAndMonth(data.date);
+                data.monthCategory = `${parsedDate.year}-${parsedDate.month}`;
+                data.timestamp = new Date(data.date).getTime();
+                const newItem = {...data, id: newId, cid: categoryId};
+                this.setState({
+                    items: {...this.state.items, [newId]: newItem}
                 });
             }
         };
