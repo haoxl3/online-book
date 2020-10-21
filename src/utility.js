@@ -35,3 +35,10 @@ export const isValidDate = (dateString) => {
     // Invalid date
     return d.toISOString().slice(0, 10) === dateString;
 };
+
+export const flatternArr = arr => {
+    return arr.reduce((map, item) => {
+        map[item.id] = item;
+        return map;
+    }, {});
+};
