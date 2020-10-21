@@ -1,6 +1,7 @@
 import React from 'react';
 import logo from '../logo.svg';
 import Ionicon from 'react-ionicons';
+import {withRouter} from 'react-router-dom';
 import {LIST_VIEW, CHART_VIEW, TYPE_INCOME, TYPE_OUTCOME, parseToYearAndMonth, padLeft} from '../utility';
 import PriceList from '../components/PriceList';
 import ViewTab from '../components/ViewTab';
@@ -75,37 +76,42 @@ class Home extends React.Component {
             currentDate: {year, month}
         })
     }
-    modifyItem = (modifiedItem) => {
-        const modifiedItems = this.state.items.map(item => {
-            if (item.id === modifiedItem.id) {
-                return {...item, title: '更新后的标题'};
-            } else {
-                return item;
-            }
-        });
-        this.setState({
-            items: modifiedItems
-        });
+    modifyItem = (item) => {
+        // const modifiedItems = this.state.items.map(item => {
+        //     if (item.id === modifiedItem.id) {
+        //         return {...item, title: '更新后的标题'};
+        //     } else {
+        //         return item;
+        //     }
+        // });
+        // this.setState({
+        //     items: modifiedItems
+        // });
+        this.props.history.push(`/edit/${item.id}`);
     }
     createItem = () => {
-        this.setState({
-            items: [newItem, ...this.state.items]
-        });
+        // this.setState({
+        //     items: [newItem, ...this.state.items]
+        // });
+        // 使用路由withRouter后props便自带了history
+        this.props.history.push('/create');
     }
-    deleteItem = (deletedItem) => {
-        const filteredItems = this.state.items.filter(item => item.id !== deletedItem.id);
-        this.setState({
-            items: filteredItems
-        });
+    deleteItem = (item) => {
+        // const filteredItems = this.state.items.filter(item => item.id !== deletedItem.id);
+        // this.setState({
+        //     items: filteredItems
+        // });
+        // 调用context中actions传来的deleteItem方法，即最初从App传来的
+        this.props.actions.deleteItem(item);
     }
     render() {
         const {data} = this.props;
-        console.log(data);
-        const {items, currentDate, tabView} = this.state;
+        const {items, categories} = data;
+        const {currentDate, tabView} = this.state;
         // 将categories与items.cid关联,给item添加category属性并赋值
-        const itemsWithCategory = items.map(item => {
-            item.category = categories[item.cid];
-            return item;
+        const itemsWithCategory = Object.keys(items).map(id => {
+            items[id].category = categories[items[id].cid];
+            return items[id];
         }).filter(item => {
             return item.date.includes(`${currentDate.year}-${padLeft(currentDate.month)}`);
         });
@@ -178,4 +184,4 @@ class Home extends React.Component {
         );
     }
 }
-export default withContext(Home);
+export default withRouter(withContext(Home));
