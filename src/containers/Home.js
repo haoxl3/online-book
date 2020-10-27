@@ -8,6 +8,7 @@ import ViewTab from '../components/ViewTab';
 import MonthPicker from '../components/MonthPicker';
 import CreateBtn from '../components/CreateBtn';
 import TotalPrice from '../components/TotalPrice';
+import Loader from '../components/Loader';
 import {Tabs, Tab} from '../components/Tabs';
 import withContext from '../WithContext';
 
@@ -48,13 +49,7 @@ export const items = [
         cid: '1'
     }
 ];
-const newItem = {
-    id: 3,
-    title: '新添加的项',
-    price: 1000,
-    date: '2020-10-18',
-    cid: '1'
-};
+
 const tabsText = [LIST_VIEW, CHART_VIEW];
 
 class Home extends React.Component {
@@ -106,7 +101,7 @@ class Home extends React.Component {
     }
     render() {
         const {data} = this.props;
-        const {items, categories, currentDate} = data;
+        const {items, categories, currentDate, isLoading} = data;
         const {tabView} = this.state;
         // 将categories与items.cid关联,给item添加category属性并赋值
         const itemsWithCategory = Object.keys(items).map(id => {
@@ -145,37 +140,42 @@ class Home extends React.Component {
                     </div>
                 </header>
                 <div className="content-area py-3 px-3">
-                    <Tabs activeIndex={0} onTabChange={this.changeView}>
-                        <Tab>
-                            <Ionicon
-                                className="rounded-circle mr-2"
-                                fontSize="25px"
-                                color={'#007bff'}
-                                icon='ios-paper'
-                            />
-                            列表模式
-                        </Tab>
-                        <Tab>
-                            <Ionicon
-                                className="rounded-circle mr-2"
-                                fontSize="25px"
-                                color={'#007bff'}
-                                icon='ios-pie'
-                            />
-                            图表模式
-                        </Tab>
-                    </Tabs>
-                    <ViewTab activeTab={tabView} onTabChange={this.changeView}/>
-                    <CreateBtn onClick={this.createItem}/>
-                    {tabView === LIST_VIEW &&
-                        <PriceList
-                            items={itemsWithCategory}
-                            onModifyItem={this.modifyItem}
-                            onDeleteItem={this.deleteItem}
-                        />
-                    }
-                    {tabView === CHART_VIEW &&
-                        <h1 className="chart-title">图表</h1>
+                    {isLoading && <Loader/>}
+                    {!isLoading &&
+                        <React.Fragment>
+                            <Tabs activeIndex={0} onTabChange={this.changeView}>
+                                <Tab>
+                                    <Ionicon
+                                        className="rounded-circle mr-2"
+                                        fontSize="25px"
+                                        color={'#007bff'}
+                                        icon='ios-paper'
+                                    />
+                                    列表模式
+                                </Tab>
+                                <Tab>
+                                    <Ionicon
+                                        className="rounded-circle mr-2"
+                                        fontSize="25px"
+                                        color={'#007bff'}
+                                        icon='ios-pie'
+                                    />
+                                    图表模式
+                                </Tab>
+                            </Tabs>
+                            <ViewTab activeTab={tabView} onTabChange={this.changeView}/>
+                            <CreateBtn onClick={this.createItem}/>
+                            {tabView === LIST_VIEW &&
+                                <PriceList
+                                    items={itemsWithCategory}
+                                    onModifyItem={this.modifyItem}
+                                    onDeleteItem={this.deleteItem}
+                                />
+                            }
+                            {tabView === CHART_VIEW &&
+                                <h1 className="chart-title">图表</h1>
+                            }
+                        </React.Fragment>
                     }
                 </div>
             </React.Fragment>

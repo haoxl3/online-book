@@ -14,11 +14,15 @@ class App extends React.Component {
         this.state = {
             items: {},
             categories: {},
+            isLoading: false,
             currentDate: parseToYearAndMonth()
         };
         // 创建全局变量actions,然后自顶向下传deleteItem事件
         this.actions = {
             getInitalData: () => {
+                this.setState({
+                    isLoading: true
+                });
                 const {currentDate} = this.state;
                 const getURLWithData = `/items?monthCategory=${currentDate.year}-${currentDate.month}&_sort=timestamp&_order=desc`;
                 const promiseArr = [axios.get('/categories'), axios.get(getURLWithData)];
@@ -26,7 +30,8 @@ class App extends React.Component {
                     const [categories, items] = arr;
                     this.setState({
                         items: flatternArr(items.data),
-                        categories: flatternArr(categories.data)
+                        categories: flatternArr(categories.data),
+                        isLoading: false
                     });
                 });
             },
