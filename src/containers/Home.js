@@ -61,10 +61,11 @@ class Home extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
-            items,
-            currentDate: parseToYearAndMonth('2020-10-10'),
             tabView: tabsText[0]
         }
+    }
+    componentDidMount() {
+        this.props.actions.getInitalData();
     }
     changeView = (index) => {
         this.setState({
@@ -72,9 +73,8 @@ class Home extends React.Component {
         });
     }
     changeDate = (year, month) => {
-        this.setState({
-            currentDate: {year, month}
-        })
+        // 调用父组件的更新日期方法
+        this.props.actions.selectNewMonth(year, month);
     }
     modifyItem = (item) => {
         // const modifiedItems = this.state.items.map(item => {
@@ -106,14 +106,12 @@ class Home extends React.Component {
     }
     render() {
         const {data} = this.props;
-        const {items, categories} = data;
-        const {currentDate, tabView} = this.state;
+        const {items, categories, currentDate} = data;
+        const {tabView} = this.state;
         // 将categories与items.cid关联,给item添加category属性并赋值
         const itemsWithCategory = Object.keys(items).map(id => {
             items[id].category = categories[items[id].cid];
             return items[id];
-        }).filter(item => {
-            return item.date.includes(`${currentDate.year}-${padLeft(currentDate.month)}`);
         });
         let totalIncome = 0;
         let totalOutcome = 0;

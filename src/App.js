@@ -1,27 +1,52 @@
 import React from 'react';
+import axios from 'axios';
 import {BrowserRouter as Router, Route, Link} from 'react-router-dom'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import './App.css';
 import Home from './containers/Home';
 import Create from './containers/Create';
 import {flatternArr, ID, parseToYearAndMonth} from './utility';
-import {testItems, testCategories} from './testData';
 
 export const AppContext = React.createContext();
 class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            items: flatternArr(testItems),
-            categories: flatternArr(testCategories)
+            items: {},
+            categories: {},
+            currentDate: parseToYearAndMonth()
         };
         // 创建全局变量actions,然后自顶向下传deleteItem事件
         this.actions = {
+            getInitalData: () => {
+                const {currentDate} = this.state;
+                const getURLWithData = `/items?monthCategory=${currentDate.year}-${currentDate.month}&_sort=timestamp&_order=desc`;
+                const promiseArr = [axios.get('/categories'), axios.get(getURLWithData)];
+                Promise.all(promiseArr).then(arr => {
+                    const [categories, items] = arr;
+                    this.setState({
+                        items: flatternArr(items.data),
+                        categories: flatternArr(categories.data)
+                    });
+                });
+            },
+            selectNewMonth: (year, month) => {
+                // 根据选择的日期，请求相应日期的数据，并更新日期选择框与展示的结果
+                const getURLWithData = `/items?monthCategory=${year}-${month}&_sort=timestamp&_order=desc`;
+                axios.get(getURLWithData).then(items => {
+                    this.setState({
+                        items: flatternArr(items.data),
+                        currentDate: {year, month}
+                    });
+                });
+            },
             deleteItem: item => {
                 // this.state.items = {1: {}, 2:{}}
-                delete this.state.items[item.id];
-                this.setState({
-                    items: this.state.items
+                axios.delete(`/items/${item.id}`).then(() => {
+                    delete this.state.items[item.id];
+                    this.setState({
+                        items: this.state.items
+                    });
                 });
             },
             createItem: (data, categoryId) => {
