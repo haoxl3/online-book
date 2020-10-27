@@ -19,40 +19,75 @@ class App extends React.Component {
         };
         // 创建全局变量actions,然后自顶向下传deleteItem事件
         this.actions = {
-            getInitalData: () => {
+            // getInitalData: () => {
+            //     this.setState({
+            //         isLoading: true
+            //     });
+            //     const {currentDate} = this.state;
+            //     const getURLWithData = `/items?monthCategory=${currentDate.year}-${currentDate.month}&_sort=timestamp&_order=desc`;
+            //     const promiseArr = [axios.get('/categories'), axios.get(getURLWithData)];
+            //     Promise.all(promiseArr).then(arr => {
+            //         const [categories, items] = arr;
+            //         this.setState({
+            //             items: flatternArr(items.data),
+            //             categories: flatternArr(categories.data),
+            //             isLoading: false
+            //         });
+            //     });
+            // },
+            // 将上面的方法改成async await
+            getInitalData: async () => {
                 this.setState({
                     isLoading: true
                 });
                 const {currentDate} = this.state;
                 const getURLWithData = `/items?monthCategory=${currentDate.year}-${currentDate.month}&_sort=timestamp&_order=desc`;
-                const promiseArr = [axios.get('/categories'), axios.get(getURLWithData)];
-                Promise.all(promiseArr).then(arr => {
-                    const [categories, items] = arr;
-                    this.setState({
-                        items: flatternArr(items.data),
-                        categories: flatternArr(categories.data),
-                        isLoading: false
-                    });
+                const results = await Promise.all([axios.get('/categories'), axios.get(getURLWithData)]);
+                const [categories, items] = results;
+                this.setState({
+                    items: flatternArr(items.data),
+                    categories: flatternArr(categories.data),
+                    isLoading: false
                 });
             },
-            selectNewMonth: (year, month) => {
+            // selectNewMonth: (year, month) => {
+            //     // 根据选择的日期，请求相应日期的数据，并更新日期选择框与展示的结果
+            //     const getURLWithData = `/items?monthCategory=${year}-${month}&_sort=timestamp&_order=desc`;
+            //     axios.get(getURLWithData).then(items => {
+            //         this.setState({
+            //             items: flatternArr(items.data),
+            //             currentDate: {year, month}
+            //         });
+            //     });
+            // },
+            // async版
+            selectNewMonth: async (year, month) => {
                 // 根据选择的日期，请求相应日期的数据，并更新日期选择框与展示的结果
                 const getURLWithData = `/items?monthCategory=${year}-${month}&_sort=timestamp&_order=desc`;
-                axios.get(getURLWithData).then(items => {
-                    this.setState({
-                        items: flatternArr(items.data),
-                        currentDate: {year, month}
-                    });
+                const items = await axios.get(getURLWithData);
+                this.setState({
+                    items: flatternArr(items.data),
+                    currentDate: {year, month}
                 });
             },
-            deleteItem: item => {
+            // deleteItem: item => {
+            //     // this.state.items = {1: {}, 2:{}}
+            //     axios.delete(`/items/${item.id}`).then(() => {
+            //         delete this.state.items[item.id];
+            //         this.setState({
+            //             items: this.state.items
+            //         });
+            //     });
+            // },
+            // async版
+            deleteItem: async item => {
                 // this.state.items = {1: {}, 2:{}}
-                axios.delete(`/items/${item.id}`).then(() => {
-                    delete this.state.items[item.id];
-                    this.setState({
-                        items: this.state.items
-                    });
+                const deleteItem = await axios.delete(`/items/${item.id}`);
+                delete this.state.items[item.id];
+                this.setState({
+                    items: this.state.items
                 });
+                return deleteItem; // 如果不需要可不返回
             },
             createItem: (data, categoryId) => {
                 const newId = ID();
