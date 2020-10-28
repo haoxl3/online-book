@@ -2,13 +2,14 @@ import React from 'react';
 import logo from '../logo.svg';
 import Ionicon from 'react-ionicons';
 import {withRouter} from 'react-router-dom';
-import {LIST_VIEW, CHART_VIEW, TYPE_INCOME, TYPE_OUTCOME, parseToYearAndMonth, padLeft} from '../utility';
+import {LIST_VIEW, CHART_VIEW, TYPE_INCOME, TYPE_OUTCOME} from '../utility';
 import PriceList from '../components/PriceList';
 import ViewTab from '../components/ViewTab';
 import MonthPicker from '../components/MonthPicker';
 import CreateBtn from '../components/CreateBtn';
 import TotalPrice from '../components/TotalPrice';
 import Loader from '../components/Loader';
+import PieChart from '../components/PieChart';
 import {Tabs, Tab} from '../components/Tabs';
 import withContext from '../WithContext';
 
@@ -51,6 +52,25 @@ export const items = [
 ];
 
 const tabsText = [LIST_VIEW, CHART_VIEW];
+
+const generateChartDataByCategory = (items, type = TYPE_INCOME) => {
+    let categoryMap = {};
+    items.filter(item => item.category.type === type).forEach(item => {
+        if (categoryMap[item.cid]) {
+            categoryMap[item.cid].value += item.price * 1;
+            categoryMap[item.cid].items.push(item.id);
+        } else {
+            categoryMap[item.cid] = {
+                name: item.category.name,
+                value: item.price * 1,
+                items: [item.id]
+            }
+        }
+    });
+    return Object.keys(categoryMap).map(mapKey => {
+        return {...categoryMap[mapKey]};
+    });
+}
 
 class Home extends React.Component {
     constructor(props) {
@@ -108,6 +128,8 @@ class Home extends React.Component {
             items[id].category = categories[items[id].cid];
             return items[id];
         });
+        const chartOutcomeDataByCategory = generateChartDataByCategory(itemsWithCategory, TYPE_OUTCOME);
+        const chartIncomeDataByCategory = generateChartDataByCategory(itemsWithCategory, TYPE_INCOME);
         let totalIncome = 0;
         let totalOutcome = 0;
         itemsWithCategory.forEach(item => {
@@ -173,7 +195,10 @@ class Home extends React.Component {
                                 />
                             }
                             {tabView === CHART_VIEW &&
-                                <h1 className="chart-title">图表</h1>
+                                <React.Fragment>
+                                    <PieChart title="本月支出" categoryData={chartOutcomeDataByCategory}/>
+                                    <PieChart title="本月收入" categoryData={chartIncomeDataByCategory}/>
+                                </React.Fragment>
                             }
                         </React.Fragment>
                     }
