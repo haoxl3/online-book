@@ -103,27 +103,35 @@ class App extends React.Component {
                 return deleteItem; // 如果不需要可不返回
             }),
             getEditData: withLoading(async id => {
-                let promiseArr = [axios.get('/categories')];
-                if (id) {
+                const {items, categories} = this.state;
+                // 在编辑页可修改地址栏的id进行切换条目，需要先判断id是否存在
+                let promiseArr = [];
+                if (Object.keys(categories).length === 0) {
+                    promiseArr.push(axios.get('/categories'));
+                }
+                const itemAlreadyFeched = (Object.keys(items).indexOf(id) > -1);
+                if (id && !itemAlreadyFeched) {
                     promiseArr.push(axios.get(`/items/${id}`));
                 }
-                const [categories, editItem] = await Promise.all(promiseArr);
+                const [fetchedCategories, editItem] = await Promise.all(promiseArr);
+                const finalCategories = fetchedCategories ? flatternArr(fetchedCategories.data) : categories;
+                const finalItem = editItem ? editItem.data : items[id];
                 if (id) {
                     this.setState({
-                        categories: flatternArr(categories.data),
+                        categories: finalCategories,
                         isLoading: false,
-                        items: {...this.state.items, [id]: editItem.data}
+                        items: {...this.state.items, [id]: finalItem}
                     });
                 } else {
                     this.setState({
-                        categories: flatternArr(categories.data),
+                        categories: finalCategories,
                         isLoading: false
                     });
                 }
                 return {
-                    categories: flatternArr(categories.data),
-                    editItem: editItem ? editItem.data : null
-                }
+                    categories: finalCategories,
+                    editItem: finalItem
+                };
             }),
             createItem: withLoading(async (data, categoryId) => {
                 const newId = ID();
