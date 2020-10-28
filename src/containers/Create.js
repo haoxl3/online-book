@@ -15,7 +15,7 @@ import withContext from '../WithContext';
 // }
 
 const tabsText = [LIST_VIEW, CHART_VIEW];
-class Create extends React.Component {
+export class Create extends React.Component {
     constructor(props) {
         super(props);
         const {id} = props.match.params;
