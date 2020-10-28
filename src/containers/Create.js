@@ -25,6 +25,17 @@ class Create extends React.Component {
             selectedCategory: (id && items[id]) ? categories[items[id].cid] : null
         }
     }
+    componentDidMount() {
+        const {id} = this.props.match.params;
+        this.props.actions.getEditData(id).then(data => {
+            const {editItem, categories} = data;
+            // 因为constructor优先componentDidMount执行，导致items无值，故在更新后再执行一下,使分类高亮
+            this.setState({
+                selectedTab: (id && editItem) ? categories[editItem.cid].type : TYPE_OUTCOME,
+                selectedCategory: (id && editItem) ? categories[editItem.cid] : null
+            })
+        });
+    }
     tabChange = (index) => {
         this.setState({
             selectedTab: tabsText[index]
@@ -39,12 +50,15 @@ class Create extends React.Component {
     submibForm = (data, isEditMode) => {
         if (!isEditMode) {
             // create
-            this.props.actions.createItem(data, this.state.selectedCategory.id);
+            this.props.actions.createItem(data, this.state.selectedCategory.id).then(() => {
+                this.props.history.push('/');
+            });
         } else {
             // update
-            this.props.actions.updateItem(data, this.state.selectedCategory.id);
+            this.props.actions.updateItem(data, this.state.selectedCategory.id).then(() => {
+                this.props.history.push('/');
+            });
         }
-        this.props.history.push('/');
     }
     cancelSubmit = () => {
         this.props.history.push('/');

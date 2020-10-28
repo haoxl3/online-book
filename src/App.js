@@ -17,6 +17,17 @@ class App extends React.Component {
             isLoading: false,
             currentDate: parseToYearAndMonth()
         };
+        // 异步方法时loading先为True，请求成功再为false，但在每个方法里都这样写比较
+        // 繁琐，故写一个共用方法被调用即可
+        const withLoading = cb => {
+            // 获取回调函数的参数ES6...args
+            return (...args) => {
+                this.setState({
+                    isLoading: true
+                });
+                return cb(...args);
+            };
+        };
         // 创建全局变量actions,然后自顶向下传deleteItem事件
         this.actions = {
             // getInitalData: () => {
@@ -36,7 +47,7 @@ class App extends React.Component {
             //     });
             // },
             // 将上面的方法改成async await
-            getInitalData: async () => {
+            getInitalData: withLoading(async () => {
                 this.setState({
                     isLoading: true
                 });
@@ -49,7 +60,7 @@ class App extends React.Component {
                     categories: flatternArr(categories.data),
                     isLoading: false
                 });
-            },
+            }),
             // selectNewMonth: (year, month) => {
             //     // 根据选择的日期，请求相应日期的数据，并更新日期选择框与展示的结果
             //     const getURLWithData = `/items?monthCategory=${year}-${month}&_sort=timestamp&_order=desc`;
@@ -61,15 +72,16 @@ class App extends React.Component {
             //     });
             // },
             // async版
-            selectNewMonth: async (year, month) => {
+            selectNewMonth: withLoading(async (year, month) => {
                 // 根据选择的日期，请求相应日期的数据，并更新日期选择框与展示的结果
                 const getURLWithData = `/items?monthCategory=${year}-${month}&_sort=timestamp&_order=desc`;
                 const items = await axios.get(getURLWithData);
                 this.setState({
                     items: flatternArr(items.data),
-                    currentDate: {year, month}
+                    currentDate: {year, month},
+                    isLoading: false
                 });
-            },
+            }),
             // deleteItem: item => {
             //     // this.state.items = {1: {}, 2:{}}
             //     axios.delete(`/items/${item.id}`).then(() => {
@@ -80,35 +92,64 @@ class App extends React.Component {
             //     });
             // },
             // async版
-            deleteItem: async item => {
+            deleteItem: withLoading(async item => {
                 // this.state.items = {1: {}, 2:{}}
                 const deleteItem = await axios.delete(`/items/${item.id}`);
                 delete this.state.items[item.id];
                 this.setState({
-                    items: this.state.items
+                    items: this.state.items,
+                    isLoading: false
                 });
                 return deleteItem; // 如果不需要可不返回
-            },
-            createItem: (data, categoryId) => {
+            }),
+            getEditData: withLoading(async id => {
+                let promiseArr = [axios.get('/categories')];
+                if (id) {
+                    promiseArr.push(axios.get(`/items/${id}`));
+                }
+                const [categories, editItem] = await Promise.all(promiseArr);
+                if (id) {
+                    this.setState({
+                        categories: flatternArr(categories.data),
+                        isLoading: false,
+                        items: {...this.state.items, [id]: editItem.data}
+                    });
+                } else {
+                    this.setState({
+                        categories: flatternArr(categories.data),
+                        isLoading: false
+                    });
+                }
+                return {
+                    categories: flatternArr(categories.data),
+                    editItem: editItem ? editItem.data : null
+                }
+            }),
+            createItem: withLoading(async (data, categoryId) => {
                 const newId = ID();
                 const parsedDate = parseToYearAndMonth(data.date);
                 data.monthCategory = `${parsedDate.year}-${parsedDate.month}`;
                 data.timestamp = new Date(data.date).getTime();
-                const newItem = {...data, id: newId, cid: categoryId};
+                const newItem = await axios.post('/items', {...data, id: newId, cid: categoryId});
                 this.setState({
-                    items: {...this.state.items, [newId]: newItem}
+                    items: {...this.state.items, [newId]: newItem},
+                    isLoading: false
                 });
-            },
-            updateItem: (item, updatedCategoryId) => {
-                const modifedItem = {
+                return newItem.data;
+            }),
+            updateItem: withLoading(async (item, updatedCategoryId) => {
+                const updatedData = {
                     ...item,
                     cid: updatedCategoryId,
                     timestamp: new Date(item.date).getTime()
-                }
+                };
+                const modifedItem = await axios.put(`/items/${item.id}`, updatedData);
                 this.setState({
-                    items: {...this.state.items, [modifedItem.id]: modifedItem}
-                })
-            }
+                    items: {...this.state.items, [modifedItem.id]: modifedItem.data},
+                    isLoading: false
+                });
+                return modifedItem.data;
+            })
         };
     }
     render() {
