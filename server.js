@@ -7,7 +7,7 @@ const middlewares = jsonServer.defaults();
 const root = __dirname + '/build';
 server.use(express.static(root, {maxAge: 86400000}));
 server.use(middlewares);
-// 让白名单里的路由由页面接管
+// 让白名单里的路由由react router接管
 const reactRouterWhiteList = ['/create', '/edit/:itemId'];
 server.get(reactRouterWhiteList, (request, response) => {
     response.sendFile(path.resolve(root, 'index.html'));
